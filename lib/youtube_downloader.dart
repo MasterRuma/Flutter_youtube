@@ -38,6 +38,9 @@ class YouTubeDownloader {
       final audioFileName = '${video.title}.${audioStream.container.name}'
           .replaceAll(RegExp(r'[\\/*?"<>|]'), '');
 
+      final video_T = '${video.title}.${audioStream.container.name}'
+          .replaceAll(RegExp(r'[\\/*?"<>|]'), '');
+
       final videoFile = File(path.join(saveDirectory, 'V_$videoFileName'));
       final audioFile = File(path.join(saveDirectory, 'A_$audioFileName'));
 
@@ -51,7 +54,7 @@ class YouTubeDownloader {
 
       onStatusChanged('영상 병합중...');
       await mergeVideoAndAudio(
-          videoFile.path, audioFile.path, video.title, flipHorizontal);
+          videoFile.path, audioFile.path, video_T, flipHorizontal);
 
       await deleteTempFiles();
       onStatusChanged(
@@ -76,13 +79,16 @@ class YouTubeDownloader {
       final audioFileName = '${video.title}.${audioStream.container.name}'
           .replaceAll(RegExp(r'[\\/*?"<>|]'), '');
 
+      final video_T = '${video.title}.${audioStream.container.name}'
+          .replaceAll(RegExp(r'[\\/*?"<>|]'), '');
+
       final audioFile = File(path.join(saveDirectory, 'A_$audioFileName'));
 
       if (await audioFile.exists()) audioFile.deleteSync();
 
       await writeToFile(
           audioData, audioFile, audioStream.size.totalBytes, 'MP3');
-      await convertVideoToMP3(audioFile.path, video.title);
+      await convertVideoToMP3(audioFile.path, video_T);
 
       await deleteTempFiles();
       onStatusChanged(
@@ -118,10 +124,7 @@ class YouTubeDownloader {
       '"$videoPath"',
       '-i',
       '"$audioPath"',
-      '-c:v',
-      'copy',
-      '-c:a',
-      'aac',
+      '-c:v copy -c:a aac',
       '"$outputFilePath"',
     ];
 
