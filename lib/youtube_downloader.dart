@@ -34,11 +34,11 @@ class YouTubeDownloader {
       final audioData = yt.videos.streamsClient.get(audioStream);
 
       final videoFileName = '${video.title}.${videoStream.container.name}'
-          .replaceAll(RegExp(r'[\\/*?"<>|]'), '');
+          .replaceAll(RegExp(r'[\\/*?"<>|:]'), '');
       final audioFileName = '${video.title}.${audioStream.container.name}'
-          .replaceAll(RegExp(r'[\\/*?"<>|]'), '');
+          .replaceAll(RegExp(r'[\\/*?"<>|:]'), '');
 
-      final video_T = '${video.title}'.replaceAll(RegExp(r'[\\/*?"<>|]'), '');
+      final video_T = '${video.title}'.replaceAll(RegExp(r'[\\/*?"<>|:]'), '');
 
       final videoFile = File(path.join(saveDirectory, 'V_$videoFileName'));
       final audioFile = File(path.join(saveDirectory, 'A_$audioFileName'));
@@ -76,9 +76,9 @@ class YouTubeDownloader {
       final audioData = yt.videos.streamsClient.get(audioStream);
 
       final audioFileName = '${video.title}.${audioStream.container.name}'
-          .replaceAll(RegExp(r'[\\/*?"<>|]'), '');
+          .replaceAll(RegExp(r'[\\/*?"<>|:]'), '');
 
-      final video_T = '${video.title}'.replaceAll(RegExp(r'[\\/*?"<>|]'), '');
+      final video_T = '${video.title}'.replaceAll(RegExp(r'[\\/*?"<>|:]'), '');
 
       final audioFile = File(path.join(saveDirectory, 'A_$audioFileName'));
 
