@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
-import 'youtube_downloader.dart'; // YouTubeDownloader 클래스를 정의한 파일을 import
+import 'youtube_downloader.dart'; // YouTubeDownloader 클래스가 정의된 파일을 import
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
@@ -40,15 +42,20 @@ class _YouTubeDownloaderScreenState extends State<YouTubeDownloaderScreen> {
     _requestPermissions();
   }
 
+  // Android 11 이상에서는 MANAGE_EXTERNAL_STORAGE 권한 요청 방식을 분기
   Future<void> _requestPermissions() async {
-    var permission = await Permission.manageExternalStorage.request();
-    if (await permission.isDenied) {
-      // None!
+    if (Platform.isAndroid) {
+      var status = await Permission.manageExternalStorage.status;
+      if (status.isDenied) {
+        await Permission.manageExternalStorage.request();
+      } else if (status.isPermanentlyDenied) {
+        await openAppSettings();
+      }
     }
   }
 
   Future<void> _pickDirectory() async {
-    // Check if storage permission is granted before attempting to open the file picker
+    // 파일 피커 사용 전 권한 상태 확인
     final status = await Permission.manageExternalStorage.status;
     if (status.isGranted) {
       String? directoryPath = await FilePicker.platform.getDirectoryPath();
@@ -59,9 +66,7 @@ class _YouTubeDownloaderScreenState extends State<YouTubeDownloaderScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Permission is not granted.'),
-        ),
+        SnackBar(content: Text('권한이 부여되지 않았습니다.')),
       );
     }
   }
@@ -81,9 +86,9 @@ class _YouTubeDownloaderScreenState extends State<YouTubeDownloaderScreen> {
 
   Future<void> _downloadVideo() async {
     if (_urlController.text.isEmpty || _selectedDirectory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Please enter a valid URL and select a directory.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('유효한 URL과 디렉토리를 선택해주세요.')),
+      );
       return;
     }
 
@@ -98,9 +103,9 @@ class _YouTubeDownloaderScreenState extends State<YouTubeDownloaderScreen> {
 
   Future<void> _downloadAudio() async {
     if (_urlController.text.isEmpty || _selectedDirectory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Please enter a valid URL and select a directory.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('유효한 URL과 디렉토리를 선택해주세요.')),
+      );
       return;
     }
 
@@ -137,14 +142,14 @@ class _YouTubeDownloaderScreenState extends State<YouTubeDownloaderScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    _selectedDirectory ?? 'No directory selected',
+                    _selectedDirectory ?? '디렉토리가 선택되지 않음',
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(width: 8.0),
                 ElevatedButton(
                   onPressed: _pickDirectory,
-                  child: Text('Select Directory'),
+                  child: Text('디렉토리 선택'),
                 ),
               ],
             ),
@@ -159,7 +164,7 @@ class _YouTubeDownloaderScreenState extends State<YouTubeDownloaderScreen> {
                     });
                   },
                 ),
-                Text('Flip Video Horizontally'),
+                Text('비디오 좌우 반전'),
               ],
             ),
             SizedBox(height: 16.0),
@@ -175,11 +180,11 @@ class _YouTubeDownloaderScreenState extends State<YouTubeDownloaderScreen> {
               children: [
                 ElevatedButton(
                   onPressed: _downloadVideo,
-                  child: Text('Download MP4'),
+                  child: Text('MP4 다운로드'),
                 ),
                 ElevatedButton(
                   onPressed: _downloadAudio,
-                  child: Text('Download MP3'),
+                  child: Text('MP3 다운로드'),
                 ),
               ],
             ),
